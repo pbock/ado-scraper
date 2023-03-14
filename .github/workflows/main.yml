@@ -17,8 +17,8 @@ jobs:
 
     - name: Use Deno
       uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      with:
+        deno-version: v1.x
 
     - name: Run script to create main csv
       run: deno run --allow-net --allow-write --allow-read scrape.ts
