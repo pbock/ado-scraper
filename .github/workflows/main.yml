@@ -1,0 +1,33 @@
+name: Scrape latest data
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron:  '*/5 * * * *'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out this repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Use Deno
+      uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+    - name: Run script to create main csv
+      run: deno run --allow-net --allow-write --allow-read scrape.ts
+
+    - name: Commit and push if it changed
+      run: |-
+        git config user.name "Automated"
+        git config user.email "actions@users.noreply.github.com"
+        git add -A
+        timestamp=$(date -u)
+        git commit -m "Latest data: ${timestamp}" || exit 0
+        git push
