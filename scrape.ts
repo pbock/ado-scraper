@@ -28,9 +28,9 @@ await Promise.all([
 await(Promise.all([
   writeResult(`data/ado/${year}.tsv`, [
     ['date', date],
-    ['visitors_now', parseExponent(ado.get('Besøkende nå'))],
-    ['visitors_today', parseExponent(ado.get('Besøkende i dag'))],
-    ['visitors_ytd', parseExponent(ado.get('Besøkende i år'))],
+    ['visitors_now', num(ado.get('Besøkende nå'))],
+    ['visitors_today', num(ado.get('Besøkende i dag'))],
+    ['visitors_ytd', num(ado.get('Besøkende i år'))],
     ['temp_main', temperature(ado.get('Hovedbasseng'))],
     ['temp_dive', temperature(ado.get('Stupebasseng'))],
     ['temp_hot_tub', temperature(ado.get('Kulp'))],
@@ -41,9 +41,9 @@ await(Promise.all([
 
   writeResult(`data/nordnes/${year}.tsv`, [
     ['date', date],
-    ['visitors_now', parseExponent(nordnes.get('Besøkende nå'))],
-    ['visitors_today', parseExponent(nordnes.get('Besøkende i dag'))],
-    ['visitors_ytd', parseExponent(nordnes.get('Besøkende i år'))],
+    ['visitors_now', num(nordnes.get('Besøkende nå'))],
+    ['visitors_today', num(nordnes.get('Besøkende i dag'))],
+    ['visitors_ytd', num(nordnes.get('Besøkende i år'))],
     ['temp_air', temperature(nordnes.get('Utetemperatur'))],
     ['temp_pool', temperature(nordnes.get('Hovedbasseng'))],
     ['temp_sea', temperature(nordnes.get('Sjøvann'))],
@@ -85,11 +85,13 @@ function temperature(val: string | undefined): string | undefined {
   return val.replace('°C', '').trim().replace(',', '.');
 }
 
-function parseExponent(val: string | undefined): string | undefined {
+function num(val: string | undefined): string | undefined {
   if (val === undefined) return val;
-  let exponent = 0;
-  if (val.toLowerCase().endsWith('k')) exponent = 3;
-  else if (val.toLowerCase().endsWith('m')) exponent = 6;
+  if (val === '-') return '0';
+
+  let factor = 1;
+  if (val.toLowerCase().endsWith('k')) factor = 1000;
+  else if (val.toLowerCase().endsWith('m')) factor = 1e6;
   const n = parseFloat(val.replace(',', '.'));
-  return (n * (10 ** exponent)).toString();
+  return (n * factor).toString();
 }
